@@ -1,4 +1,4 @@
-import distributedmake as dm
+import pydm.distributedmake as dm
 
 m = dm.DistributedMake(dryRun=False, keepGoing=True, numJobs=10)
 
