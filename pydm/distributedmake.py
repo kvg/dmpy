@@ -24,10 +24,12 @@ class DistributedMake():
         self.touch = touch
         self.debug = debug
 
-    def add(self, cmds, target = None, deps = []):
-        if (isinstance(cmds, str)):
+    def add(self, cmds, target, deps = None):
+        if deps is None:
+            deps = []
+        if isinstance(cmds, str):
             cmds = [cmds]
-        if (isinstance(deps, str)):
+        if isinstance(deps, str):
             deps = [deps]
 
         dirname = os.path.abspath(os.path.dirname(target))
