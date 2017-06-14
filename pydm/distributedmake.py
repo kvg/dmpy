@@ -24,22 +24,20 @@ class DistributedMake():
         self.touch = touch
         self.debug = debug
 
-    def add(self, cmds, target = [], deps = []):
+    def add(self, cmds, target = None, deps = []):
         if (isinstance(cmds, str)):
             cmds = [cmds]
-        if (isinstance(target, str)):
-            targets = [target]
         if (isinstance(deps, str)):
             deps = [deps]
 
-        dirname = os.path.abspath(os.path.dirname(target[0]))
+        dirname = os.path.abspath(os.path.dirname(target))
 
         cmds.insert(0, "@test -d {} && mkdir -p {}".format(dirname, dirname))
 
-        self.__writer.write("{}: {}\n".format(target[0], ' '.join(deps)))
+        self.__writer.write("{}: {}\n".format(target, ' '.join(deps)))
         self.__writer.write("\t{}\n".format("\n\t".join(cmds)))
 
-        self.__targets.append(target[0])
+        self.__targets.append(target)
 
         return
 
