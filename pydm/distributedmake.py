@@ -34,6 +34,8 @@ class DistributedMake():
 
         if isinstance(deps, str):
             deps = [deps]
+        elif deps is None:
+            deps = list()
         else:
             deps = list(deps)
 
