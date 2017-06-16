@@ -2,6 +2,7 @@ import tempfile
 from subprocess import call
 import os
 
+
 class DistributedMake():
     dryRun = True
     keepGoing = False
@@ -15,7 +16,8 @@ class DistributedMake():
     __writer = open(__mfp, 'w')
     __targets = []
 
-    def __init__(self, dryRun = True, keepGoing = False, numJobs = 1, cleanup = True, question = False, touch = False, debug = False):
+    def __init__(self, dryRun=True, keepGoing=False, numJobs=1, cleanup=True, question=False,
+                 touch=False, debug=False):
         self.dryRun = dryRun
         self.keepGoing = keepGoing
         self.numJobs = numJobs
@@ -24,17 +26,20 @@ class DistributedMake():
         self.touch = touch
         self.debug = debug
 
-    def add(self, cmds, target, deps = None):
-        if deps is None:
-            deps = []
+    def add(self, target, deps, cmds):
         if isinstance(cmds, str):
             cmds = [cmds]
+        else:
+            cmds = list(cmds)
+
         if isinstance(deps, str):
             deps = [deps]
+        else:
+            deps = list(deps)
 
         dirname = os.path.abspath(os.path.dirname(target))
 
-        cmds.insert(0, "@test -d {} && mkdir -p {}".format(dirname, dirname))
+        cmds.insert(0, "@test -d {0} && mkdir -p {0}".format(dirname))
 
         self.__writer.write("{}: {}\n".format(target, ' '.join(deps)))
         self.__writer.write("\t{}\n".format("\n\t".join(cmds)))
@@ -73,4 +78,3 @@ class DistributedMake():
             os.remove(self.__mfp)
 
         return return_code
-
