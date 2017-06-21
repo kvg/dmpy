@@ -2,7 +2,7 @@
 from setuptools import setup
 
 setup(
-    name='Pydm',
+    name='dmpy',
     version='0.1.1',
     description='Python Distributed Make',
     author='Kiran Garimella',
