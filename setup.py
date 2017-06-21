@@ -7,5 +7,5 @@ setup(
     description='Python Distributed Make',
     author='Kiran Garimella',
     author_email='kiran.garimella@gmail.com',
-    packages=['pydm'],
+    packages=['dmpy'],
 )
