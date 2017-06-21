@@ -41,7 +41,7 @@ class DistributedMake():
 
         dirname = os.path.abspath(os.path.dirname(target))
 
-        cmds.insert(0, "@test -d {0} && mkdir -p {0}".format(dirname))
+        cmds.insert(0, "@test -d {0} || mkdir -p {0}".format(dirname))
 
         self.__writer.write("{}: {}\n".format(target, ' '.join(deps)))
         self.__writer.write("\t{}\n".format("\n\t".join(cmds)))
