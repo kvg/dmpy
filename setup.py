@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='Pydm',
-    version='0.1.0',
+    version='0.1.1',
     description='Python Distributed Make',
     author='Kiran Garimella',
     author_email='kiran.garimella@gmail.com',
