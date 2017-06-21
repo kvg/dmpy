@@ -4,9 +4,9 @@ import os
 
 
 class DistributedMake():
-    dryRun = True
-    keepGoing = False
-    numJobs = 1
+    dry_run = True
+    keep_going = False
+    num_jobs = 1
     cleanup = True
     question = False
     touch = False
@@ -16,11 +16,11 @@ class DistributedMake():
     __writer = open(__mfp, 'w')
     __targets = []
 
-    def __init__(self, dryRun=True, keepGoing=False, numJobs=1, cleanup=True, question=False,
+    def __init__(self, dry_run=True, keep_going=False, num_jobs=1, cleanup=True, question=False,
                  touch=False, debug=False):
-        self.dryRun = dryRun
-        self.keepGoing = keepGoing
-        self.numJobs = numJobs
+        self.dry_run = dry_run
+        self.keep_going = keep_going
+        self.num_jobs = num_jobs
         self.cleanup = cleanup
         self.question = question
         self.touch = touch
@@ -57,9 +57,9 @@ class DistributedMake():
         makecmd = []
         makecmd.append("make")
 
-        if self.dryRun:
+        if self.dry_run:
             makecmd.append("-n")
-        if self.keepGoing:
+        if self.keep_going:
             makecmd.append("-k")
         if self.question:
             makecmd.append("-q {}".format(self.question))
@@ -68,7 +68,7 @@ class DistributedMake():
         if self.debug:
             makecmd.append("-d {}".format(self.debug))
 
-        makecmd.append("-j{}".format(self.numJobs))
+        makecmd.append("-j{}".format(self.num_jobs))
         makecmd.append("-f {}".format(self.__mfp))
         makecmd.append("all")
 

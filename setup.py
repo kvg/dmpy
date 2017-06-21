@@ -3,8 +3,8 @@ from setuptools import setup
 
 setup(
     name='dmpy',
-    version='0.1.1',
-    description='Python Distributed Make',
+    version='0.1.2',
+    description='Distributed Make for Python',
     author='Kiran Garimella',
     author_email='kiran.garimella@gmail.com',
     packages=['dmpy'],
