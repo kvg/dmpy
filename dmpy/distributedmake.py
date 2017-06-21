@@ -3,6 +3,11 @@ from subprocess import call
 import os
 
 
+def add_dm_args_to_argparse_object(object):
+    object.add_argument("-d", "--dry-run", action="store_true")
+    return object
+
+
 class DistributedMake():
     dry_run = True
     keep_going = False
