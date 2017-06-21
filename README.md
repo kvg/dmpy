@@ -11,10 +11,10 @@ pip install git+git://github.com/kvg/dmpy.git
 
 ## Tests
 
-```python
+```bash
 python example.py
 ```
 
 ## Bugs
 
-Please raise an issue for reporting bugs.
+Please raise an issue on [the github page](https://github.com/kvg/dmpy) to report a bug.
