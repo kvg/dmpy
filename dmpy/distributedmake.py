@@ -1,3 +1,4 @@
+import argparse
 import tempfile
 from subprocess import call
 import os
@@ -8,28 +9,26 @@ def add_dm_args_to_argparse_object(object):
     return object
 
 
-class DistributedMake():
-    dry_run = True
-    keep_going = False
-    num_jobs = 1
-    cleanup = True
-    question = False
-    touch = False
-    debug = False
+def get_dm_arg_parser(description="dmpy powered analysis"):
+    parser = argparse.ArgumentParser(description=description)
+    parser = add_dm_args_to_argparse_object(parser)
+    return parser
 
-    __mfd, __mfp = tempfile.mkstemp()
-    __writer = open(__mfp, 'w')
-    __targets = []
 
+class DistributedMake(object):
     def __init__(self, dry_run=True, keep_going=False, num_jobs=1, cleanup=True, question=False,
-                 touch=False, debug=False):
-        self.dry_run = dry_run
+                 touch=False, debug=False, args_object=None):
+        self.dry_run = getattr(args_object, "dry_run", dry_run)
         self.keep_going = keep_going
         self.num_jobs = num_jobs
         self.cleanup = cleanup
         self.question = question
         self.touch = touch
         self.debug = debug
+
+        self.__mfd, self.__mfp = tempfile.mkstemp()
+        self.__writer = open(self.__mfp, 'w')
+        self.__targets = []
 
     def add(self, target, deps, cmds):
         if isinstance(cmds, str):
