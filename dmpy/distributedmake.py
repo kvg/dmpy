@@ -31,6 +31,10 @@ class DistributedMake(object):
         self.__mfd, self.__mfp = tempfile.mkstemp()
         self.__writer = open(self.__mfp, 'w')
         self.__targets = []
+        self._write_makefile_preamble()
+
+    def _write_makefile_preamble(self):
+        self.__writer.write("SHELL := /bin/bash\n")
 
     def add(self, target, deps, cmds):
         if isinstance(cmds, str):
@@ -57,7 +61,6 @@ class DistributedMake(object):
         return
 
     def execute(self):
-        self.__writer.write("SHELL := /bin/bash")
         self.__writer.write("all: {}\n".format(" ".join(self.__targets)))
         self.__writer.close()
 
