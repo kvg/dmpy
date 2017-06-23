@@ -55,6 +55,7 @@ class DistributedMake(object):
         return
 
     def execute(self):
+        self.__writer.write("SHELL := /bin/bash")
         self.__writer.write("all: {}\n".format(" ".join(self.__targets)))
         self.__writer.close()
 
