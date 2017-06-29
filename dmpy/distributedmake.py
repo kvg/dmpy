@@ -62,6 +62,7 @@ class DistributedMake(object):
 
     def execute(self):
         self.__writer.write("all: {}\n".format(" ".join(self.__targets)))
+        self.__writer.write(".DELETE_ON_ERROR:\n")
         self.__writer.close()
 
         makecmd = []
