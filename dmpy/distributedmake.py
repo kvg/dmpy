@@ -6,7 +6,7 @@ import os
 
 def add_dm_args_to_argparse_object(object):
     object.add_argument("-r", "--run", action="store_true")
-    object.add_argument("-n", "--num-jobs", type=int, default=1)
+    object.add_argument("-j", "--jobs", type=int, default=1)
     object.add_argument("-c", "--no-cleanup", action="store_true")
     return object
 
@@ -18,11 +18,11 @@ def get_dm_arg_parser(description="dmpy powered analysis"):
 
 
 class DistributedMake(object):
-    def __init__(self, run=False, keep_going=False, num_jobs=1, no_cleanup=False, question=False,
+    def __init__(self, run=False, keep_going=False, jobs=1, no_cleanup=False, question=False,
                  touch=False, debug=False, args_object=None):
         self.dry_run = not getattr(args_object, "run", run)
         self.keep_going = keep_going
-        self.num_jobs = getattr(args_object, "num_jobs", num_jobs)
+        self.jobs = getattr(args_object, "jobs", jobs)
         self.cleanup = not getattr(args_object, 'no_cleanup', no_cleanup)
         self.question = question
         self.touch = touch
@@ -79,7 +79,7 @@ class DistributedMake(object):
         if self.debug:
             makecmd.append("-d {}".format(self.debug))
 
-        makecmd.append("-j{}".format(self.num_jobs))
+        makecmd.append("-j {}".format(self.jobs))
         makecmd.append("-f {}".format(self.__mfp))
         makecmd.append("all")
 
