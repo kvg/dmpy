@@ -1,4 +1,4 @@
-from dmpy.distributedmake import DistributedMake, get_dm_arg_parser
+from dmpy import DistributedMake, get_dm_arg_parser
 
 # Pass --dry-run to command line
 args = get_dm_arg_parser().parse_args()
