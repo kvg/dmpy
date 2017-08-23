@@ -33,11 +33,12 @@ class DistributedMake(object):
         self.__mfd, self.__mfp = tempfile.mkstemp()
         self.__writer = open(self.__mfp, 'w')
         self.__targets = set()
+        self.__targets_ordered = []
         self._write_makefile_preamble()
 
     @property
     def targets(self):
-        return copy(self.__targets)
+        return copy(self.__targets_ordered)
 
     def _write_makefile_preamble(self):
         self.__writer.write("SHELL := /bin/bash\n")
@@ -62,12 +63,15 @@ class DistributedMake(object):
         self.__writer.write("{}: {}\n".format(target, ' '.join(deps)))
         self.__writer.write("\t{}\n".format("\n\t".join(cmds)))
 
+        if target in self.__targets:
+            raise Exception("Tried to add target twice: {}".format(target))
         self.__targets.add(target)
+        self.__targets_ordered.append(target)
 
         return
 
     def execute(self):
-        self.__writer.write("all: {}\n".format(" ".join(self.__targets)))
+        self.__writer.write("all: {}\n".format(" ".join(self.__targets_ordered)))
         self.__writer.write(".DELETE_ON_ERROR:\n")
         self.__writer.close()
 
