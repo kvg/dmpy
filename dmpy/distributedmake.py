@@ -1,7 +1,9 @@
 import argparse
-import tempfile
-from subprocess import call
 import os
+import tempfile
+
+from copy import copy
+from subprocess import call
 
 
 def add_dm_args_to_argparse_object(object):
@@ -30,8 +32,12 @@ class DistributedMake(object):
 
         self.__mfd, self.__mfp = tempfile.mkstemp()
         self.__writer = open(self.__mfp, 'w')
-        self.__targets = []
+        self.__targets = set()
         self._write_makefile_preamble()
+
+    @property
+    def targets(self):
+        return copy(self.__targets)
 
     def _write_makefile_preamble(self):
         self.__writer.write("SHELL := /bin/bash\n")
@@ -56,7 +62,7 @@ class DistributedMake(object):
         self.__writer.write("{}: {}\n".format(target, ' '.join(deps)))
         self.__writer.write("\t{}\n".format("\n\t".join(cmds)))
 
-        self.__targets.append(target)
+        self.__targets.add(target)
 
         return
 
