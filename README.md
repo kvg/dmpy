@@ -18,3 +18,9 @@ python example.py
 ## Bugs
 
 Please raise an issue on [the github page](https://github.com/kvg/dmpy) to report a bug.
+
+## Development
+
+We now have a Pipfile and Pipfile.lock for use with [pipenv](http://docs.pipenv.org/en/latest/)!
+
+Please always update your Pipfile.lock (`pipenv lock`) before making a PR.
