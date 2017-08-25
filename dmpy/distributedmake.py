@@ -21,7 +21,7 @@ def get_dm_arg_parser(description="dmpy powered analysis"):
 
 class DistributedMake(object):
     def __init__(self, run=False, keep_going=False, jobs=1, no_cleanup=False, question=False,
-                 touch=False, debug=False, args_object=None):
+                 touch=False, debug=False, args_object=None, writer=None, use_slurm=False):
         self.dry_run = not getattr(args_object, "run", run)
         self.keep_going = keep_going
         self.jobs = getattr(args_object, "jobs", jobs)
@@ -29,9 +29,13 @@ class DistributedMake(object):
         self.question = question
         self.touch = touch
         self.debug = debug
+        self.use_slurm = use_slurm
 
         self.__mfd, self.__mfp = tempfile.mkstemp()
-        self.__writer = open(self.__mfp, 'w')
+        if writer is None:
+            self.__writer = open(self.__mfp, 'w')
+        else:
+            self.__writer = writer
         self.__targets = set()
         self.__targets_ordered = []
         self._write_makefile_preamble()
@@ -61,7 +65,12 @@ class DistributedMake(object):
         cmds.insert(0, "@test -d {0} || mkdir -p {0}".format(dirname))
 
         self.__writer.write("{}: {}\n".format(target, ' '.join(deps)))
-        self.__writer.write("\t{}\n".format("\n\t".join(cmds)))
+        if self.use_slurm:
+            cmd_prefix = 'srun '
+        else:
+            cmd_prefix = ''
+        for cmd in cmds:
+            self.__writer.write("\t{}{}\n".format(cmd_prefix,cmd))
 
         if target in self.__targets:
             raise Exception("Tried to add target twice: {}".format(target))
@@ -71,8 +80,7 @@ class DistributedMake(object):
         return
 
     def execute(self):
-        self.__writer.write("all: {}\n".format(" ".join(self.__targets_ordered)))
-        self.__writer.write(".DELETE_ON_ERROR:\n")
+        self.finalize()
         self.__writer.close()
 
         makecmd = []
@@ -101,3 +109,8 @@ class DistributedMake(object):
             os.remove(self.__mfp)
 
         return return_code
+
+    def finalize(self):
+        self.__writer.write("all: {}\n".format(" ".join(self.__targets_ordered)))
+        self.__writer.write(".DELETE_ON_ERROR:\n")
+        self.__writer.flush()
