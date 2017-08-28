@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "8d28e503af2a5207eb2e6fe53e8b11567cbb25cd3a16efe8370dc00cdaea7614"
+            "sha256": "b5e709db6f4c6fb2046d628334a18f2f33cf728b899d2ba132677e4244624821"
         },
         "requires": {},
         "sources": [
@@ -12,11 +12,26 @@
         ]
     },
     "default": {
+        "apipkg": {
+            "version": "==1.4"
+        },
+        "execnet": {
+            "version": "==1.4.1"
+        },
+        "pep8": {
+            "version": "==1.7.0"
+        },
         "py": {
             "version": "==1.4.34"
         },
         "pytest": {
             "version": "==3.2.1"
+        },
+        "pytest-cache": {
+            "version": "==1.0"
+        },
+        "pytest-pep8": {
+            "version": "==1.0.6"
         },
         "setuptools": {
             "version": "==36.2.7"

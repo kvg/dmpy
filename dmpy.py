@@ -1,15 +1,24 @@
 import argparse
 import os
 import tempfile
+from enum import Enum
 
 from copy import copy
 from subprocess import call
+
+import sys
+
+
+class SchedulingEngine(Enum):
+    none = 0
+    slurm = 1
 
 
 def add_dm_args_to_argparse_object(object):
     object.add_argument("-r", "--run", action="store_true")
     object.add_argument("-j", "--jobs", type=int, default=1)
     object.add_argument("-c", "--no-cleanup", action="store_true")
+    object.add_argument("--scheduler", default=SchedulingEngine.none.name)
     return object
 
 
@@ -21,7 +30,8 @@ def get_dm_arg_parser(description="dmpy powered analysis"):
 
 class DistributedMake(object):
     def __init__(self, run=False, keep_going=False, jobs=1, no_cleanup=False, question=False,
-                 touch=False, debug=False, args_object=None, writer=None, use_slurm=False):
+                 touch=False, debug=False, args_object=None, writer=None,
+                 scheduler=SchedulingEngine.none):
         self.dry_run = not getattr(args_object, "run", run)
         self.keep_going = keep_going
         self.jobs = getattr(args_object, "jobs", jobs)
@@ -29,7 +39,11 @@ class DistributedMake(object):
         self.question = question
         self.touch = touch
         self.debug = debug
-        self.use_slurm = use_slurm
+        if args_object is not None and "scheduler" in args_object:
+            self.scheduler = SchedulingEngine[args_object.scheduler]
+        else:
+            self.scheduler = scheduler
+        print(self.scheduler, file=sys.stderr)
 
         _, self._makefile_fp = tempfile.mkstemp()
         if writer is None:
@@ -62,10 +76,10 @@ class DistributedMake(object):
 
         dirname = os.path.abspath(os.path.dirname(target))
 
-        cmds.insert(0, "@test -d {0} || mkdir -p {0}".format(dirname))
+        cmds.insert(0, "@example_test -d {0} || mkdir -p {0}".format(dirname))
 
         self._writer.write("{}: {}\n".format(target, ' '.join(deps)))
-        if self.use_slurm:
+        if self.scheduler == SchedulingEngine.slurm:
             cmd_prefix = 'srun '
         else:
             cmd_prefix = ''

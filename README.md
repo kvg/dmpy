@@ -12,7 +12,7 @@ pip install git+git://github.com/kvg/dmpy.git
 ## Tests
 
 ```bash
-python example.py
+pytest --pep8
 ```
 
 ## Bugs

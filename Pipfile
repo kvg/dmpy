@@ -4,4 +4,4 @@ verify_ssl = true
 
 [packages]
 pytest = "*"
-attrs = "*"
+pytest-pep8 = "*"

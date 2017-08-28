@@ -4,5 +4,5 @@ from dmpy import DistributedMake, get_dm_arg_parser
 args = get_dm_arg_parser().parse_args()
 m = DistributedMake(keep_going=True, args_object=args)
 
-m.add("test_output_file", None, './test')
+m.add("test_output_file", None, './example_test')
 m.execute()
