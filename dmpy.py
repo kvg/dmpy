@@ -31,7 +31,7 @@ class DistributedMake(object):
         self.debug = debug
         self.use_slurm = use_slurm
 
-        _ , self._makefile_fp = tempfile.mkstemp()
+        _, self._makefile_fp = tempfile.mkstemp()
         if writer is None:
             self._writer = open(self._makefile_fp, 'w')
         else:
