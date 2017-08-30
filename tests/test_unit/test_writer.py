@@ -7,11 +7,11 @@ class TestDmpyWriter(object):
     def test_puts_something_into_the_stringio_writer(self):
         # given
         writer = StringIO()
-        dm = DistributedMake(writer=writer)
+        dm = DistributedMake()
         dm.add('output', 'input', 'echo hi world')
 
         # when
-        dm.finalize()
+        dm.write_to_filehandle(writer)
 
         # then
         assert writer.getvalue() != ''

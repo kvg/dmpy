@@ -7,11 +7,11 @@ class TestDmpySlurmIntegration(object):
     def test_prefixes_all_recipes_with_srun(self):
         # given
         writer = StringIO()
-        dm = DistributedMake(writer=writer, scheduler=SchedulingEngine.slurm)
+        dm = DistributedMake(scheduler=SchedulingEngine.slurm)
         dm.add('output', 'input', 'echo hi world')
 
         # when
-        dm.finalize()
+        dm.write_to_filehandle(writer)
 
         # then
         writer.seek(0)

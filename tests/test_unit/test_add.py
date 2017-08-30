@@ -8,7 +8,7 @@ from dmpy import DistributedMake
 class TestDmpyAdd(object):
     def test_raises_on_adding_same_target_twice(self):
         # given
-        dm = DistributedMake(writer=io.StringIO())
+        dm = DistributedMake()
         dm.add('hi', 'world', 'echo')
 
         # when

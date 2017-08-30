@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "b5e709db6f4c6fb2046d628334a18f2f33cf728b899d2ba132677e4244624821"
+            "sha256": "d66807e621293ee94606d37745efcfb25cda56bfba7f7f89f394ee329ecfeaf9"
         },
         "requires": {},
         "sources": [
@@ -12,6 +12,11 @@
         ]
     },
     "default": {
+        "attrs": {
+            "version": "==17.2.0"
+        }
+    },
+    "develop": {
         "apipkg": {
             "version": "==1.4"
         },
@@ -34,8 +39,7 @@
             "version": "==1.0.6"
         },
         "setuptools": {
-            "version": "==36.2.7"
+            "version": "==36.3.0"
         }
-    },
-    "develop": {}
+    }
 }
