@@ -1,13 +1,13 @@
 from io import StringIO
 
-from dmpy import DistributedMake, SchedulingEngine
+from dmpy import DistributedMake, SchedulingEngine, DMBuilder
 
 
 class TestDmpySlurmIntegration(object):
     def test_prefixes_all_recipes_with_srun(self):
         # given
         writer = StringIO()
-        dm = DistributedMake(scheduler=SchedulingEngine.slurm)
+        dm = DMBuilder(scheduler=SchedulingEngine.slurm)
         dm.add('output', 'input', 'echo hi world')
 
         # when

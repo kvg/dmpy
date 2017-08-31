@@ -46,6 +46,38 @@ class DMRule(object):
 
 
 @attr.s(slots=True)
+class DMBuilder(object):
+    rules = attr.ib(attr.Factory(list))
+    scheduler = attr.ib(default=SchedulingEngine.none)
+    _targets = attr.ib(attr.Factory(set))
+
+    def add(self, target, deps, cmds):
+        if target in self._targets:
+            raise Exception("Tried to add target twice: {}".format(target))
+        self._targets.add(target)
+        self.rules.append(DMRule(target, deps, cmds))
+
+    def write_to_filehandle(self, fh):
+        fh.write("SHELL := /bin/bash\n")
+        for rule in self.rules:
+            dirname = os.path.abspath(os.path.dirname(rule.target))
+
+            rule.recipe.insert(0, "@example_test -d {0} || mkdir -p {0}".format(dirname))
+
+            fh.write("{}: {}\n".format(rule.target, ' '.join(rule.deps)))
+            if self.scheduler == SchedulingEngine.slurm:
+                cmd_prefix = 'srun '
+            else:
+                cmd_prefix = ''
+            for cmd in rule.recipe:
+                fh.write("\t{}{}\n".format(cmd_prefix, cmd))
+
+        fh.write("all: {}\n".format(" ".join([r.target for r in self.rules])))
+        fh.write(".DELETE_ON_ERROR:\n")
+        fh.flush()
+
+
+@attr.s(slots=True)
 class DistributedMake(object):
     run = attr.ib(default=False)
     keep_going = attr.ib(default=False)
@@ -55,11 +87,9 @@ class DistributedMake(object):
     touch = attr.ib(default=False)
     debug = attr.ib(default=False)
 
-    rules = attr.ib(attr.Factory(list))
     args_object = attr.ib(default=None)
-    scheduler = attr.ib(default=SchedulingEngine.none)
     _makefile_fp = attr.ib(init=False)
-    _targets = attr.ib(attr.Factory(set))
+    _dm_builder = attr.ib(attr.Factory(DMBuilder))
 
     def __attrs_post_init__(self):
         self._handle_args_object()
@@ -71,17 +101,14 @@ class DistributedMake(object):
             if attr_string in self.args_object:
                 setattr(self, attr_string, getattr(self.args_object, attr_string))
         if "scheduler" in self.args_object:
-            self.scheduler = SchedulingEngine[self.args_object.scheduler]
+            self._dm_builder.scheduler = SchedulingEngine[self.args_object.scheduler]
 
-    def add(self, target, deps, cmds):
-        if target in self._targets:
-            raise Exception("Tried to add target twice: {}".format(target))
-        self._targets.add(target)
-        self.rules.append(DMRule(target, deps, cmds))
+    def add(self, target, deps, commands):
+        self._dm_builder.add(target, deps, commands)
 
     def execute(self):
         with NamedTemporaryFile(mode='wt', delete=not self.no_cleanup) as makefile_fp:
-            self.write_to_filehandle(makefile_fp)
+            self._dm_builder.write_to_filehandle(makefile_fp)
 
             makecmd = self.build_make_command(makefile_fp.name)
 
@@ -107,22 +134,3 @@ class DistributedMake(object):
         makecmd.append("-f {}".format(makefile_name))
         makecmd.append("all")
         return makecmd
-
-    def write_to_filehandle(self, fh):
-        fh.write("SHELL := /bin/bash\n")
-        for rule in self.rules:
-            dirname = os.path.abspath(os.path.dirname(rule.target))
-
-            rule.recipe.insert(0, "@example_test -d {0} || mkdir -p {0}".format(dirname))
-
-            fh.write("{}: {}\n".format(rule.target, ' '.join(rule.deps)))
-            if self.scheduler == SchedulingEngine.slurm:
-                cmd_prefix = 'srun '
-            else:
-                cmd_prefix = ''
-            for cmd in rule.recipe:
-                fh.write("\t{}{}\n".format(cmd_prefix, cmd))
-
-        fh.write("all: {}\n".format(" ".join([r.target for r in self.rules])))
-        fh.write(".DELETE_ON_ERROR:\n")
-        fh.flush()
