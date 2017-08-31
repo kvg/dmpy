@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from setuptools import setup, find_packages
+from setuptools import setup
 
 setup(
     name='dmpy',
@@ -7,5 +7,5 @@ setup(
     description='Distributed Make for Python',
     author='Kiran Garimella',
     author_email='kiran.garimella@gmail.com',
-    packages=find_packages(exclude=('tests', 'docs')),
+    packages=['dmpy'],
 )
