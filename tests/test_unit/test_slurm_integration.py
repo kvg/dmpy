@@ -1,10 +1,11 @@
 from io import StringIO
 
-from dmpy import DistributedMake, SchedulingEngine, DMBuilder
+from dmpy.distributedmake import SchedulingEngine, DMBuilder
+from dmpy.testing.makefile_parser import extract_rules_from_makefile
 
 
 class TestDmpySlurmIntegration(object):
-    def test_prefixes_all_recipes_with_srun(self):
+    def test_prefixes_expected_recipes_with_srun(self):
         # given
         writer = StringIO()
         dm = DMBuilder(scheduler=SchedulingEngine.slurm)
@@ -14,8 +15,8 @@ class TestDmpySlurmIntegration(object):
         dm.write_to_filehandle(writer)
 
         # then
-        writer.seek(0)
-        for line in writer:
-            if line.startswith("\t"):
-                if not line.startswith('\t@example_test'):
-                    assert line.startswith("\tsrun ")
+        rules = extract_rules_from_makefile(writer.getvalue().split("\n"))
+        rule = rules[0]
+        assert len(rule.recipe) == 2
+        assert rule.recipe[0].startswith('@test ')
+        assert rule.recipe[1].startswith('srun ')

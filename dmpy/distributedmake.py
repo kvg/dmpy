@@ -1,13 +1,12 @@
 import argparse
 import os
-from tempfile import NamedTemporaryFile
 from enum import Enum
+from subprocess import call
+from tempfile import NamedTemporaryFile
+
 import attr
 
-from copy import copy
-from subprocess import call
-
-import sys
+from dmpy.objects.dm_rule import DMRule
 
 
 class SchedulingEngine(Enum):
@@ -29,22 +28,6 @@ def get_dm_arg_parser(description="dmpy powered analysis"):
     return parser
 
 
-def convert_to_list(val):
-    if val is None:
-        return []
-    if isinstance(val, str):
-        return [val]
-    else:
-        return list(val)
-
-
-@attr.s(slots=True)
-class DMRule(object):
-    target = attr.ib()
-    deps = attr.ib(attr.Factory(list), convert=convert_to_list)
-    recipe = attr.ib(attr.Factory(list), convert=convert_to_list)
-
-
 @attr.s(slots=True)
 class DMBuilder(object):
     rules = attr.ib(attr.Factory(list))
@@ -62,15 +45,15 @@ class DMBuilder(object):
         for rule in self.rules:
             dirname = os.path.abspath(os.path.dirname(rule.target))
 
-            rule.recipe.insert(0, "@example_test -d {0} || mkdir -p {0}".format(dirname))
-
             fh.write("{}: {}\n".format(rule.target, ' '.join(rule.deps)))
             if self.scheduler == SchedulingEngine.slurm:
                 cmd_prefix = 'srun '
             else:
                 cmd_prefix = ''
+            rule.recipe = [cmd_prefix + cmd for cmd in rule.recipe]
+            rule.recipe.insert(0, "@test -d {0} || mkdir -p {0}".format(dirname))
             for cmd in rule.recipe:
-                fh.write("\t{}{}\n".format(cmd_prefix, cmd))
+                fh.write("\t{}\n".format(cmd))
 
         fh.write("all: {}\n".format(" ".join([r.target for r in self.rules])))
         fh.write(".DELETE_ON_ERROR:\n")

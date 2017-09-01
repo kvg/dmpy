@@ -2,6 +2,8 @@ from os.path import join, realpath, dirname
 from subprocess import check_output
 from shutil import copyfile
 
+from dmpy.testing.makefile_parser import extract_rules_from_makefile
+
 
 class TestDmpySchedulerFlag(object):
     def test_honors_slurm(self, tmpdir):

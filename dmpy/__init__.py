@@ -1,1 +1,1 @@
-from dmpy.distributedmake import DistributedMake, get_dm_arg_parser
+from dmpy.distributedmake import DMBuilder, DistributedMake, get_dm_arg_parser

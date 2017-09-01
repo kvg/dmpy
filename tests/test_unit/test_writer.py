@@ -1,6 +1,7 @@
 from io import StringIO
 
 from dmpy import DMBuilder
+from dmpy.testing.makefile_parser import extract_rules_from_makefile
 
 
 class TestDmpyWriter(object):
@@ -15,3 +16,28 @@ class TestDmpyWriter(object):
 
         # then
         assert writer.getvalue() != ''
+
+    def test_inserts_test_in_recipe(self):
+        writer = StringIO()
+        dm = DMBuilder()
+        dm.add('output', 'input', 'echo hi world')
+
+        # when
+        dm.write_to_filehandle(writer)
+
+        # then
+        rules = extract_rules_from_makefile(writer.getvalue().split("\n"))
+        assert rules[0].recipe[0].startswith("@test ")
+
+    def test_escapes_dollar_signs(self):
+        # given
+        writer = StringIO()
+        dm = DMBuilder()
+        dm.add('output', 'input', 'echo $HI')
+
+        # when
+        dm.write_to_filehandle(writer)
+
+        # then
+        rules = extract_rules_from_makefile(writer.getvalue().split("\n"))
+        assert rules[0].recipe[1] == 'echo $HI'
