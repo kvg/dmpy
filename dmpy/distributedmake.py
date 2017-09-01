@@ -3,7 +3,6 @@ import os
 from enum import Enum
 from subprocess import call
 from tempfile import NamedTemporaryFile
-
 import attr
 
 from dmpy.objects.dm_rule import DMRule
@@ -30,6 +29,7 @@ def get_dm_arg_parser(description="dmpy powered analysis"):
 
 @attr.s(slots=True)
 class DMBuilder(object):
+    shell = attr.ib(default="/bin/bash")
     rules = attr.ib(attr.Factory(list))
     scheduler = attr.ib(default=SchedulingEngine.none)
     _targets = attr.ib(attr.Factory(set))
@@ -41,7 +41,7 @@ class DMBuilder(object):
         self.rules.append(DMRule(target, deps, cmds))
 
     def write_to_filehandle(self, fh):
-        fh.write("SHELL := /bin/bash\n")
+        fh.write("SHELL = {}\n".format(self.shell))
         for rule in self.rules:
             dirname = os.path.abspath(os.path.dirname(rule.target))
 
@@ -53,6 +53,7 @@ class DMBuilder(object):
             rule.recipe = [cmd_prefix + cmd for cmd in rule.recipe]
             rule.recipe.insert(0, "@test -d {0} || mkdir -p {0}".format(dirname))
             for cmd in rule.recipe:
+                cmd = cmd.replace("$", "$$")
                 fh.write("\t{}\n".format(cmd))
 
         fh.write("all: {}\n".format(" ".join([r.target for r in self.rules])))
@@ -69,6 +70,7 @@ class DistributedMake(object):
     question = attr.ib(default=False)
     touch = attr.ib(default=False)
     debug = attr.ib(default=False)
+    shell = attr.ib(default='/bin/bash')
 
     args_object = attr.ib(default=None)
     _makefile_fp = attr.ib(init=False)
@@ -89,14 +91,15 @@ class DistributedMake(object):
     def add(self, target, deps, commands):
         self._dm_builder.add(target, deps, commands)
 
-    def execute(self):
+    def execute(self, callable=call):
         with NamedTemporaryFile(mode='wt', delete=not self.no_cleanup) as makefile_fp:
+            self._dm_builder.shell = self.shell
             self._dm_builder.write_to_filehandle(makefile_fp)
 
             makecmd = self.build_make_command(makefile_fp.name)
 
             print(" ".join(makecmd))
-            return_code = call(" ".join(makecmd), shell=True)
+            return_code = callable(makecmd)
             print(" ".join(makecmd))
 
         return return_code
@@ -108,12 +111,12 @@ class DistributedMake(object):
         if self.keep_going:
             makecmd.append("-k")
         if self.question:
-            makecmd.append("-q {}".format(self.question))
+            makecmd.extend(["-q", self.question])
         if self.touch:
-            makecmd.append("-t {}".format(self.touch))
+            makecmd.extend(["-t", self.touch])
         if self.debug:
-            makecmd.append("-d {}".format(self.debug))
-        makecmd.append("-j {}".format(self.jobs))
-        makecmd.append("-f {}".format(makefile_name))
+            makecmd.append("-d")
+        makecmd.extend(["-j", str(self.jobs)])
+        makecmd.extend(["-f", makefile_name])
         makecmd.append("all")
         return makecmd

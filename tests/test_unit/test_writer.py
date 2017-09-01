@@ -40,4 +40,16 @@ class TestDmpyWriter(object):
 
         # then
         rules = extract_rules_from_makefile(writer.getvalue().split("\n"))
-        assert rules[0].recipe[1] == 'echo $HI'
+        assert rules[0].recipe[1] == 'echo $$HI'
+
+    def test_changes_shell(self):
+        # given
+        dm = DMBuilder()
+        dm.shell = "bla"
+        writer = StringIO()
+
+        # when
+        dm.write_to_filehandle(writer)
+
+        # then
+        assert writer.getvalue().split("\n")[0].endswith("bla")
