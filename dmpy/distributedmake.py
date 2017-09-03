@@ -19,7 +19,7 @@ def add_dm_args_to_argparse_object(object):
     object.add_argument("-j", "--jobs", type=int, default=1)
     object.add_argument("-c", "--no-cleanup", action="store_true")
     object.add_argument("--scheduler", default=SchedulingEngine.none.name)
-    object.add_argument("--scheduler-args")
+    object.add_argument("--scheduler-args", default=None)
     return object
 
 
@@ -90,7 +90,7 @@ class DistributedMake(object):
                 setattr(self, attr_string, getattr(self.args_object, attr_string))
         if "scheduler" in self.args_object:
             self._dm_builder.scheduler = SchedulingEngine[self.args_object.scheduler]
-        if 'scheduler_args' in self.args_object:
+        if 'scheduler_args' in self.args_object and self.args_object.scheduler_args is not None:
             self._dm_builder.scheduler_args = shlex.split(self.args_object.scheduler_args)
 
     def add(self, target, deps, commands):
