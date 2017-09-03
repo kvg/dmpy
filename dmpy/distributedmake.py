@@ -1,6 +1,7 @@
 import argparse
 import os
 from enum import Enum
+import shlex
 from subprocess import call
 from tempfile import NamedTemporaryFile
 import attr
@@ -18,6 +19,7 @@ def add_dm_args_to_argparse_object(object):
     object.add_argument("-j", "--jobs", type=int, default=1)
     object.add_argument("-c", "--no-cleanup", action="store_true")
     object.add_argument("--scheduler", default=SchedulingEngine.none.name)
+    object.add_argument("--scheduler-args")
     return object
 
 
@@ -32,6 +34,7 @@ class DMBuilder(object):
     shell = attr.ib(default="/bin/bash")
     rules = attr.ib(attr.Factory(list))
     scheduler = attr.ib(default=SchedulingEngine.none)
+    scheduler_args = attr.ib(default=attr.Factory(list))
     _targets = attr.ib(attr.Factory(set))
 
     def add(self, target, deps, cmds):
@@ -47,7 +50,7 @@ class DMBuilder(object):
 
             fh.write("{}: {}\n".format(rule.target, ' '.join(rule.deps)))
             if self.scheduler == SchedulingEngine.slurm:
-                cmd_prefix = 'srun '
+                cmd_prefix = 'srun ' + ' '.join(self.scheduler_args) + ' '
             else:
                 cmd_prefix = ''
             rule.recipe = [cmd_prefix + cmd for cmd in rule.recipe]
@@ -87,6 +90,8 @@ class DistributedMake(object):
                 setattr(self, attr_string, getattr(self.args_object, attr_string))
         if "scheduler" in self.args_object:
             self._dm_builder.scheduler = SchedulingEngine[self.args_object.scheduler]
+        if 'scheduler_args' in self.args_object:
+            self._dm_builder.scheduler_args = shlex.split(self.args_object.scheduler_args)
 
     def add(self, target, deps, commands):
         self._dm_builder.add(target, deps, commands)
