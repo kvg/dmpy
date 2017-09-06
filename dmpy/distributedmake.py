@@ -110,7 +110,7 @@ class DistributedMake(object):
         return return_code
 
     def build_make_command(self, makefile_name):
-        makecmd = ["make"]
+        makecmd = ['make', '-Werror']
         if not self.run:
             makecmd.append("-n")
         if self.keep_going:

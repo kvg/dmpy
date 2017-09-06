@@ -6,8 +6,7 @@ def convert_to_list(val):
         return []
     if isinstance(val, str):
         return [val]
-    else:
-        return list(val)
+    return list(val)
 
 
 @attr.s(slots=True)
@@ -15,3 +14,8 @@ class DMRule(object):
     target = attr.ib()
     deps = attr.ib(attr.Factory(list), convert=convert_to_list)
     recipe = attr.ib(attr.Factory(list), convert=convert_to_list)
+
+    @target.validator
+    def not_none(self, attribute, value):
+        if value is None:
+            raise ValueError("target may not be None type")
