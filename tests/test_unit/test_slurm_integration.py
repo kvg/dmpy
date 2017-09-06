@@ -36,5 +36,5 @@ class TestDmpySlurmIntegration(object):
         rule = rules[0]
         assert len(rule.recipe) == 3
         assert rule.recipe[0].startswith('@test ')
-        assert rule.recipe[1].startswith('srun fries and cats')
-        assert rule.recipe[2].startswith('srun fries and cats')
+        assert rule.recipe[1].startswith('srun --quit-on-interrupt fries and cats')
+        assert rule.recipe[2].startswith('srun --quit-on-interrupt fries and cats')

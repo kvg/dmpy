@@ -29,4 +29,4 @@ class TestDmpySchedulerFlag(object):
         output = output.split("\n")
 
         # then
-        assert output[2].startswith("srun hi slurm ")
+        assert output[2].startswith("srun --quit-on-interrupt hi slurm ")

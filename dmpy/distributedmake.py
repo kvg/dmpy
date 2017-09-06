@@ -2,7 +2,7 @@ import argparse
 import os
 from enum import Enum
 import shlex
-from subprocess import call
+import subprocess
 from tempfile import NamedTemporaryFile
 import attr
 
@@ -50,7 +50,7 @@ class DMBuilder(object):
 
             fh.write("{}: {}\n".format(rule.target, ' '.join(rule.deps)))
             if self.scheduler == SchedulingEngine.slurm:
-                cmd_prefix = 'srun ' + ' '.join(self.scheduler_args) + ' '
+                cmd_prefix = ' '.join(['srun', '--quit-on-interrupt'] + self.scheduler_args) + ' '
             else:
                 cmd_prefix = ''
             rule.recipe = [cmd_prefix + cmd for cmd in rule.recipe]
@@ -96,18 +96,18 @@ class DistributedMake(object):
     def add(self, target, deps, commands):
         self._dm_builder.add(target, deps, commands)
 
-    def execute(self, callable=call):
+    def execute(self, callable=subprocess.run):
         with NamedTemporaryFile(mode='wt', delete=not self.no_cleanup) as makefile_fp:
             self._dm_builder.shell = self.shell
             self._dm_builder.write_to_filehandle(makefile_fp)
 
             makecmd = self.build_make_command(makefile_fp.name)
 
-            print(" ".join(makecmd))
-            return_code = callable(makecmd)
-            print(" ".join(makecmd))
+            print(' '.join(makecmd))
+            completed_process = callable(makecmd)
+            print(' '.join(makecmd))
 
-        return return_code
+        return completed_process
 
     def build_make_command(self, makefile_name):
         makecmd = ['make', '-Werror']
