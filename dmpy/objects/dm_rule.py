@@ -7,7 +7,7 @@ def convert_to_list(val):
     if isinstance(val, str):
         return [val]
     if None in val:
-        raise ValueError('deps may not include None type')
+        raise ValueError('deps may not include None type: {}'.format(val))
     return list(val)
 
 
