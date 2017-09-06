@@ -21,8 +21,19 @@ class TestDmpyAdd(object):
         dm = DistributedMake()
 
         # when
-        with pytest.raises(Exception) as excinfo:
+        with pytest.raises(ValueError) as excinfo:
             dm.add(None, 'world', 'echo')
 
         # then
         assert 'target may not be None type' in str(excinfo.value)
+
+    def test_raises_on_adding_none_deps(self):
+        # given
+        dm = DistributedMake()
+
+        # when
+        with pytest.raises(ValueError) as excinfo:
+            dm.add('hi', ['world', None], 'echo')
+
+        # then
+        assert 'deps may not include None type' in str(excinfo.value)
