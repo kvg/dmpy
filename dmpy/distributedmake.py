@@ -118,7 +118,7 @@ class DistributedMake(object):
         if self.question:
             makecmd.extend(["-q", self.question])
         if self.touch:
-            makecmd.extend(["-t", self.touch])
+            makecmd.extend(["-t"])
         if self.debug:
             makecmd.append("-d")
         makecmd.extend(["-j", str(self.jobs)])
