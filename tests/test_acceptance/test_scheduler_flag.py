@@ -30,3 +30,16 @@ class TestDmpySchedulerFlag(object):
 
         # then
         assert output[2].startswith("srun --quit-on-interrupt hi slurm ")
+
+    def test_runs_all_commands_in_bash_string(self, tmpdir):
+        # given
+        example = tmpdir.join('example.py')
+        copyfile(realpath(join(dirname(__file__), 'example.py')), str(example))
+
+        # when
+        output = check_output(['python', str(example), '--scheduler', 'slurm']).decode("utf-8")
+        output = output.split("\n")
+
+        # then
+        assert output[2].endswith(" bash -c 'echo '\"'\"'hi world'\"'\"''")
+
