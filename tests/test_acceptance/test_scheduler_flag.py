@@ -42,4 +42,3 @@ class TestDmpySchedulerFlag(object):
 
         # then
         assert output[2].endswith(" bash -c 'echo '\"'\"'hi world'\"'\"''")
-

@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='dmpy',
-    version='0.13.0',
+    version='0.13.1',
     description='Distributed Make for Python',
     author='Kiran Garimella',
     author_email='kiran.garimella@gmail.com',

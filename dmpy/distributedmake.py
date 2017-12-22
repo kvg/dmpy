@@ -1,9 +1,11 @@
 import argparse
+import contextlib
 import os
+import signal
 from enum import Enum
 import shlex
 import subprocess
-from tempfile import NamedTemporaryFile
+from tempfile import NamedTemporaryFile, TemporaryDirectory, mkdtemp
 import attr
 
 from dmpy.objects.dm_rule import DMRule
@@ -95,15 +97,27 @@ class DistributedMake(object):
     def add(self, target, deps, commands):
         self._dm_builder.add(target, deps, commands)
 
-    def execute(self, callable=subprocess.run):
-        with NamedTemporaryFile(mode='wt', delete=not self.no_cleanup) as makefile_fp:
-            self._dm_builder.shell = self.shell
-            self._dm_builder.write_to_filehandle(makefile_fp)
+    def execute(self, callable=subprocess.Popen, popen_args=None):
+        if popen_args is None:
+            popen_args = {}
+        with contextlib.ExitStack() as stack:
+            tmpdir = mkdtemp()
+            if not self.no_cleanup:
+                tmpdir = stack.enter_context(TemporaryDirectory(dir=tmpdir))
+            makefile = os.path.join(tmpdir, 'makefile')
+            with open(makefile, 'wt') as makefile_fp:
+                self._dm_builder.shell = self.shell
+                self._dm_builder.write_to_filehandle(makefile_fp)
 
-            makecmd = self.build_make_command(makefile_fp.name)
+            makecmd = self.build_make_command(makefile)
 
             print(' '.join(makecmd))
-            completed_process = callable(makecmd)
+            process = callable(' '.join(makecmd), shell=True, **popen_args)
+            try:
+                completed_process = process.communicate()
+            except KeyboardInterrupt:
+                process.send_signal(signal.SIGINT)
+                raise KeyboardInterrupt('Exiting after keyboard interrupt')
             print(' '.join(makecmd))
 
         return completed_process
