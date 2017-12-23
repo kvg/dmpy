@@ -21,4 +21,5 @@ setup(
     author_email='kiran.garimella@gmail.com',
     packages=find_packages(),
     install_requires=pipfile_lock_requirements,
+    url='https://github.com/kvg/dmpy',
 )
