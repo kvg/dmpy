@@ -7,16 +7,19 @@ This project uses `Semantic versioning <http://semver.org/spec/v2.0.0.html>`_.
 
 Installation from pypi
 ----------------------
+::
 
     pip install dmpy
 
 Installation from github
 ------------------------
+::
 
     pip install git+git://github.com/kvg/dmpy.git attrs
 
 Examples
 --------
+Contents of an example dmpy script::
 
     # example.py
     from dmpy import DistributedMake, get_dm_arg_parser
@@ -27,7 +30,7 @@ Examples
     m.add("test_output_file", None, "echo 'hi world'")
     m.execute()
 
-Then run example.py
+Then run example.py::
 
     # get a dry-run of all commands to be executed
     python example.py
@@ -37,6 +40,8 @@ Then run example.py
 
 Tests
 -----
+::
+
     make test
 
 Bugs
