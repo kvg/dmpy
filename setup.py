@@ -17,7 +17,7 @@ setup(
     name='dmpy',
     version='0.13.1',
     description='Distributed Make for Python',
-    author='Kiran Garimella',
+    author='Kiran Garimella and Warren Kretzschmar',
     author_email='kiran.garimella@gmail.com',
     packages=find_packages(),
     install_requires=pipfile_lock_requirements,
