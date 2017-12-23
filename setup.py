@@ -15,8 +15,8 @@ def get_requirements_from_pipfile_lock(pipfile_lock=None):
 pipfile_lock_requirements = get_requirements_from_pipfile_lock()
 setup(
     name='dmpy',
-    version='0.13.1',
-    description='Distributed Make for Python',
+    version='0.13.2',
+    description=open('README.rst').read(),
     author='Kiran Garimella and Warren Kretzschmar',
     author_email='kiran.garimella@gmail.com',
     packages=find_packages(),
