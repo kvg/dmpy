@@ -16,7 +16,7 @@ class TestDmpySchedulerFlag(object):
         output = output.split("\n")
 
         # then
-        assert output[2].startswith("srun ")
+        assert output[1].startswith("srun ")
 
     def test_honors_scheduler_args_flag(self, tmpdir):
         # given
@@ -29,7 +29,7 @@ class TestDmpySchedulerFlag(object):
         output = output.split("\n")
 
         # then
-        assert output[2].startswith("srun --quit-on-interrupt hi slurm ")
+        assert output[1].startswith("srun --quit-on-interrupt hi slurm ")
 
     def test_runs_all_commands_in_bash_string(self, tmpdir):
         # given
@@ -41,4 +41,4 @@ class TestDmpySchedulerFlag(object):
         output = output.split("\n")
 
         # then
-        assert output[2].endswith(" bash -c 'echo '\"'\"'hi world'\"'\"''")
+        assert output[1].endswith(" bash -c 'echo '\"'\"'hi world'\"'\"''")

@@ -5,10 +5,13 @@ import signal
 from enum import Enum
 import shlex
 import subprocess
-from tempfile import NamedTemporaryFile, TemporaryDirectory, mkdtemp
+from tempfile import TemporaryDirectory, mkdtemp
 import attr
+import logging
 
 from dmpy.objects.dm_rule import DMRule
+
+logger = logging.getLogger(__name__)
 
 
 class SchedulingEngine(Enum):
@@ -75,6 +78,7 @@ class DistributedMake(object):
     touch = attr.ib(default=False)
     debug = attr.ib(default=False)
     shell = attr.ib(default='/bin/bash')
+    exit_on_keyboard_interrupt = attr.ib(True)
 
     args_object = attr.ib(default=None)
     _makefile_fp = attr.ib(init=False)
@@ -111,14 +115,18 @@ class DistributedMake(object):
 
             makecmd = self.build_make_command(makefile)
 
-            print(' '.join(makecmd))
+            logger.warning(' '.join(makecmd))
             process = callable(' '.join(makecmd), shell=True, **popen_args)
             try:
                 completed_process = process.communicate()
             except KeyboardInterrupt:
                 process.send_signal(signal.SIGINT)
-                raise KeyboardInterrupt('Exiting after keyboard interrupt')
-            print(' '.join(makecmd))
+                message = 'Exiting after keyboard interrupt'
+                if self.exit_on_keyboard_interrupt:
+                    logger.warning(message)
+                    exit()
+                raise KeyboardInterrupt(message)
+            logger.warning(' '.join(makecmd))
 
         return completed_process
 
