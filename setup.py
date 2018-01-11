@@ -15,7 +15,7 @@ def get_requirements_from_pipfile_lock(pipfile_lock=None):
 pipfile_lock_requirements = get_requirements_from_pipfile_lock()
 setup(
     name='dmpy',
-    version='0.15.0',
+    version='0.15.1',
     description='Distributed Make for Python',
     long_description=open('README.rst').read(),
     author='Kiran Garimella and Warren Kretzschmar',
@@ -23,4 +23,5 @@ setup(
     packages=find_packages(),
     install_requires=pipfile_lock_requirements,
     url='https://github.com/kvg/dmpy',
+    include_package_data=True,
 )
