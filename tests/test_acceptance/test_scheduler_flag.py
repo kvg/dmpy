@@ -22,14 +22,28 @@ class TestDmpySchedulerFlag(object):
         # given
         example = tmpdir.join('example.py')
         copyfile(realpath(join(dirname(__file__), 'example.py')), str(example))
+        test_scheduler_args = 'test scheduler args'
 
         # when
         output = check_output(['python', str(example), '--scheduler', 'slurm', '--scheduler-args',
-                               'hi slurm']).decode("utf-8")
+                               test_scheduler_args]).decode("utf-8")
         output = output.split("\n")
 
         # then
-        assert output[1].startswith("srun --quit-on-interrupt hi slurm ")
+        assert test_scheduler_args in output[1]
+
+    def test_sets_job_name(self, tmpdir):
+        # given
+        example = tmpdir.join('example.py')
+        copyfile(realpath(join(dirname(__file__), 'example.py')), str(example))
+
+        # when
+        output = check_output(['python', str(example), '--scheduler', 'slurm', '--scheduler-args',
+                               'arg1']).decode("utf-8")
+        output = output.split("\n")
+
+        # then
+        assert '--job-name echo' in output[1]
 
     def test_runs_all_commands_in_bash_string(self, tmpdir):
         # given

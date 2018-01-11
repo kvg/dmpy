@@ -25,7 +25,8 @@ class TestDmpySlurmIntegration(object):
     def test_prefixes_work_commands_with_srun_args(self):
         # given
         writer = StringIO()
-        dm = DMBuilder(scheduler=SchedulingEngine.slurm, scheduler_args=['fries', 'and', 'cats'])
+        test_scheduler_args = ['fries', 'and', 'cats']
+        dm = DMBuilder(scheduler=SchedulingEngine.slurm, scheduler_args=test_scheduler_args)
         dm.add('output', 'input', ['echo hi world', 'hi world again'])
 
         # when
@@ -36,5 +37,7 @@ class TestDmpySlurmIntegration(object):
         rule = rules[0]
         assert len(rule.recipe) == 3
         assert rule.recipe[0].startswith('@test ')
-        assert rule.recipe[1].startswith('srun --quit-on-interrupt fries and cats')
-        assert rule.recipe[2].startswith('srun --quit-on-interrupt fries and cats')
+        assert rule.recipe[1].startswith(
+            'srun --quit-on-interrupt --job-name echo {}'.format(' '.join(test_scheduler_args)))
+        assert rule.recipe[2].startswith(
+            'srun --quit-on-interrupt --job-name echo {}'.format(' '.join(test_scheduler_args)))

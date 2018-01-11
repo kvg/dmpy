@@ -21,3 +21,7 @@ class DMRule(object):
     def not_none(self, attribute, value):
         if value is None:
             raise ValueError("target may not be None type")
+
+    @property
+    def name(self):
+        return self.recipe[0].lstrip().partition(' ')[0]

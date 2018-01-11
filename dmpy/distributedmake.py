@@ -55,9 +55,11 @@ class DMBuilder(object):
 
             fh.write("{}: {}\n".format(rule.target, ' '.join(rule.deps)))
             if self.scheduler == SchedulingEngine.slurm:
-                cmd_prefix = ' '.join(
-                    ['srun', '--quit-on-interrupt'] + self.scheduler_args + ['bash', '-c']) + ' '
-                rule.recipe = [cmd_prefix + shlex.quote(cmd) for cmd in rule.recipe]
+                cmd_prefix = ['srun', '--quit-on-interrupt', '--job-name', rule.name]
+                cmd_prefix += self.scheduler_args
+                cmd_prefix += ['bash', '-c']
+                cmd_prefix = ' '.join(cmd_prefix)
+                rule.recipe = [cmd_prefix + ' ' + shlex.quote(cmd) for cmd in rule.recipe]
             rule.recipe.insert(0, "@test -d {0} || mkdir -p {0}".format(dirname))
             for cmd in rule.recipe:
                 cmd = cmd.replace("$", "$$")
