@@ -45,6 +45,9 @@ class DMBuilder(object):
     _targets = attr.ib(attr.Factory(set))
 
     def add(self, target, deps, cmds):
+        if target is None:
+            raise ValueError("target may not be None type")
+        target = str(target)
         if target in self._targets:
             raise Exception("Tried to add target twice: {}".format(target))
         self._targets.add(target)
