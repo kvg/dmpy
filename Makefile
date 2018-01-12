@@ -2,6 +2,7 @@ RUN_IN_ENV = pipenv run
 PYTHON = $(RUN_IN_ENV) python
 
 test:
+	pytest --doctest-modules dmpy
 	pytest --pep8
 
 check_git_dirty:

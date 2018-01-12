@@ -5,9 +5,11 @@ import signal
 from enum import Enum
 import shlex
 import subprocess
-from tempfile import TemporaryDirectory, mkdtemp
+from tempfile import TemporaryDirectory, mkdtemp, mkstemp
 import attr
 import logging
+
+import shutil
 
 from dmpy.objects.dm_rule import DMRule
 
@@ -85,6 +87,7 @@ class DistributedMake(object):
     args_object = attr.ib(default=None)
     _makefile_fp = attr.ib(init=False)
     _dm_builder = attr.ib(attr.Factory(DMBuilder))
+    _tempdir = attr.ib(None)
 
     def __attrs_post_init__(self):
         self._handle_args_object()
@@ -107,10 +110,9 @@ class DistributedMake(object):
         if popen_args is None:
             popen_args = {}
         with contextlib.ExitStack() as stack:
-            tmpdir = mkdtemp()
             if not self.no_cleanup:
-                tmpdir = stack.enter_context(TemporaryDirectory(dir=tmpdir))
-            makefile = os.path.join(tmpdir, 'makefile')
+                self.tempdir = stack.enter_context(remove_dir_on_exit(self.tempdir))
+            makefile = os.path.join(self.tempdir, 'makefile')
             with open(makefile, 'wt') as makefile_fp:
                 self._dm_builder.shell = self.shell
                 self._dm_builder.write_to_filehandle(makefile_fp)
@@ -148,3 +150,60 @@ class DistributedMake(object):
         makecmd.extend(["-f", makefile_name])
         makecmd.append("all")
         return makecmd
+
+    @property
+    def tempdir(self):
+        """Returns the temporary dir that is used during execute()
+
+        Cleaned up after execute() if no_cleanup=False
+
+        >>> dm = DistributedMake()
+        >>> tempdir = dm.tempdir
+        >>> os.path.exists(tempdir)
+        True
+        >>> dm.execute()
+        (...)
+        >>> os.path.exists(tempdir)
+        False
+        """
+        if self._tempdir is None:
+            self._tempdir = mkdtemp()
+        return self._tempdir
+
+    @tempdir.setter
+    def tempdir(self, new_tempdir):
+        self._tempdir = new_tempdir
+
+    def get_tempfile(self):
+        """Returns a tempfile that is cleaned up after execute() is called
+
+        :returns: returns a tuple containing an OS-level handle to an open file
+        (as would be returned by os.open()) and the absolute pathname of that file, in that order
+
+        >>> dm = DistributedMake()
+        >>> file_handle, file_name = dm.get_tempfile()
+        >>> os.path.exists(file_name)
+        True
+        >>> dm.execute()
+        (...)
+        >>> os.path.exists(file_name)
+        False
+
+        The temporary file is not cleaned up when no_cleanup is set to True.
+        >>> dm = DistributedMake(no_cleanup=True)
+        >>> file_handle, file_name = dm.get_tempfile()
+        >>> os.path.exists(file_name)
+        True
+        >>> dm.execute()
+        (...)
+        >>> os.path.exists(file_name)
+        True
+
+        """
+        return mkstemp(dir=self.tempdir)
+
+
+@contextlib.contextmanager
+def remove_dir_on_exit(dir):
+    yield dir
+    shutil.rmtree(dir)
