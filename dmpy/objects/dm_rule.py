@@ -10,6 +10,10 @@ def convert_to_list(val):
         return []
     if isinstance(val, str):
         return [val]
+    try:
+        iter(val)
+    except TypeError:
+        return [str(val)]
     if None in val:
         raise ValueError('deps may not include None type: {}'.format(val))
     val = [str(v) for v in val]
@@ -32,6 +36,8 @@ class DMRule(object):
     >>> # Path objects are converted to string
     >>> from pathlib import Path
     >>> DMRule(Path("target"), [Path("dep")], "recipe")
+    DMRule(target='target', deps=['dep'], recipe=['recipe'])
+    >>> DMRule(Path("target"), Path("dep"), "recipe")
     DMRule(target='target', deps=['dep'], recipe=['recipe'])
 
     """
