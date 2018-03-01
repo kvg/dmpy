@@ -27,6 +27,7 @@ def add_dm_args_to_argparse_object(object):
     object.add_argument("-c", "--no-cleanup", action="store_true")
     object.add_argument("-t", "--touch", action="store_true")
     object.add_argument("-k", "--keep-going", action="store_true")
+    object.add_argument("-B", "--always-make", action="store_true")
     object.add_argument("--scheduler", default=SchedulingEngine.none.name)
     object.add_argument("--scheduler-args", default=None)
     return object
@@ -78,17 +79,18 @@ class DMBuilder(object):
 
 @attr.s(slots=True)
 class DistributedMake(object):
-    run = attr.ib(default=False)
-    keep_going = attr.ib(default=False)
-    jobs = attr.ib(default=1)
-    no_cleanup = attr.ib(default=False)
-    question = attr.ib(default=False)
-    touch = attr.ib(default=False)
-    debug = attr.ib(default=False)
-    shell = attr.ib(default='/bin/bash')
+    run = attr.ib(False)
+    keep_going = attr.ib(False)
+    jobs = attr.ib(1)
+    no_cleanup = attr.ib(False)
+    question = attr.ib(False)
+    touch = attr.ib(False)
+    debug = attr.ib(False)
+    always_make = attr.ib(False)
+    shell = attr.ib('/bin/bash')
     exit_on_keyboard_interrupt = attr.ib(True)
 
-    args_object = attr.ib(default=None)
+    args_object = attr.ib(None)
     _makefile_fp = attr.ib(init=False)
     _dm_builder = attr.ib(attr.Factory(DMBuilder))
     _tempdir = attr.ib(None)
@@ -99,7 +101,7 @@ class DistributedMake(object):
     def _handle_args_object(self):
         if self.args_object is None:
             return
-        for attr_string in ['run', 'no_cleanup', 'jobs', 'touch', 'keep_going']:
+        for attr_string in ['run', 'no_cleanup', 'jobs', 'touch', 'keep_going', 'always_make']:
             if attr_string in self.args_object:
                 setattr(self, attr_string, getattr(self.args_object, attr_string))
         if "scheduler" in self.args_object:
@@ -150,6 +152,8 @@ class DistributedMake(object):
             makecmd.extend(["-t"])
         if self.debug:
             makecmd.append("-d")
+        if self.always_make:
+            makecmd.append("-B")
         makecmd.extend(["-j", str(self.jobs)])
         makecmd.extend(["-f", makefile_name])
         makecmd.append("all")

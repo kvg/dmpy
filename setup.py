@@ -15,11 +15,11 @@ def get_requirements_from_pipfile_lock(pipfile_lock=None):
 pipfile_lock_requirements = get_requirements_from_pipfile_lock()
 setup(
     name='dmpy',
-    version='0.20.0',
+    version='0.21.0',
     description='Distributed Make for Python',
     long_description=open('README.rst').read(),
-    author='Kiran Garimella and Warren Kretzschmar',
-    author_email='kiran.garimella@gmail.com and winni@warrenwk.com',
+    author='Kiran Garimella, Warren Kretzschmar',
+    author_email='kiran.garimella@gmail.com, winni@warrenwk.com',
     packages=find_packages(),
     install_requires=pipfile_lock_requirements,
     url='https://github.com/kvg/dmpy',
