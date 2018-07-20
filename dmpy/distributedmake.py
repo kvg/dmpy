@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 class SchedulingEngine(Enum):
     none = 0
     slurm = 1
+    sge = 2
 
 
 def add_dm_args_to_argparse_object(object):
@@ -47,13 +48,13 @@ class DMBuilder(object):
     scheduler_args = attr.ib(default=attr.Factory(list))
     _targets = attr.ib(attr.Factory(set))
 
-    def add(self, target, deps, cmds):
+    def add(self, target, deps, cmds, opts=None):
         if target is None:
             raise ValueError("target may not be None type")
         if target in self._targets:
             raise Exception("Tried to add target twice: {}".format(target))
         self._targets.add(target)
-        self.rules.append(DMRule(target, deps, cmds))
+        self.rules.append(DMRule(target, deps, cmds, opts))
 
     def write_to_filehandle(self, fh):
         fh.write("SHELL = {}\n".format(self.shell))
@@ -67,6 +68,21 @@ class DMBuilder(object):
                 cmd_prefix += ['bash', '-c']
                 cmd_prefix = ' '.join(cmd_prefix)
                 rule.recipe = [cmd_prefix + ' ' + shlex.quote(cmd) for cmd in rule.recipe]
+            if self.scheduler == SchedulingEngine.sge and len(rule.clusteropts) > 0:
+                cmd_prefix = ['echo \"(']
+                cmd_suffix = [')\" |', 'qsub', '-sync y', '-cwd', '-V',
+                              f'pe smp {rule.clusteropts["threads"]}',
+                              f'-l h_vmem={rule.clusteropts["h_vmem"]}G,h_stack=32M',
+                              f'-q {rule.clusteropts["queue"]}',
+                              f'-o {rule.target}.log.out',
+                              f'-e {rule.target}.log.err',
+                              f'-N {rule.name}'
+                              ]
+
+                cmd_prefix = ' '.join(cmd_prefix)
+                cmd_suffix = ' '.join(cmd_suffix)
+                rule.recipe = [cmd_prefix + ' ' + cmd + ' ' + cmd_suffix for cmd in rule.recipe]
+
             rule.recipe.insert(0, "@test -d {0} || mkdir -p {0}".format(dirname))
             for cmd in rule.recipe:
                 cmd = cmd.replace("$", "$$")
@@ -109,8 +125,8 @@ class DistributedMake(object):
         if 'scheduler_args' in self.args_object and self.args_object.scheduler_args is not None:
             self._dm_builder.scheduler_args = shlex.split(self.args_object.scheduler_args)
 
-    def add(self, target, deps, commands):
-        self._dm_builder.add(target, deps, commands)
+    def add(self, target, deps, commands, opts=None):
+        self._dm_builder.add(target, deps, commands, opts)
 
     def execute(self, callable=subprocess.Popen, popen_args=None):
         if popen_args is None:

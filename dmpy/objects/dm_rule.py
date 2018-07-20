@@ -20,6 +20,18 @@ def convert_to_list(val):
     return list(val)
 
 
+def convert_to_dict(val):
+    if val is None:
+        return {}
+    if isinstance(val, str):
+        raise ValueError('job dispatch options must be provided as dict')
+    try:
+        iter(val)
+    except TypeError:
+        raise ValueError('job dispatch options must be provided as dict')
+    return val
+
+
 @attr.s(slots=True)
 class DMRule(object):
     """Stores all info for writing a makefile rule
@@ -44,6 +56,7 @@ class DMRule(object):
     target = attr.ib(convert=stringify)
     deps = attr.ib(attr.Factory(list), convert=convert_to_list)
     recipe = attr.ib(attr.Factory(list), convert=convert_to_list)
+    clusteropts = attr.ib(attr.Factory(dict), convert=convert_to_dict)
 
     @target.validator
     def not_none(self, attribute, value):
