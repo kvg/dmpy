@@ -45,5 +45,5 @@ class TestDmpySlurmIntegration(object):
         rule = rules[0]
         assert len(rule.recipe) == 3
         assert rule.recipe[0].startswith('@test ')
-        assert rule.recipe[1].endswith(f'qsub -sync y -cwd -V pe smp {opts["threads"]} -l h_vmem={opts["h_vmem"]}G,h_stack=32M -q {opts["queue"]} -o {target}.log.out -e {target}.log.err -N {cmds[0].split(" ")[0]}')
-        assert rule.recipe[2].endswith(f'qsub -sync y -cwd -V pe smp {opts["threads"]} -l h_vmem={opts["h_vmem"]}G,h_stack=32M -q {opts["queue"]} -o {target}.log.out -e {target}.log.err -N {cmds[0].split(" ")[0]}')
+        assert rule.recipe[1].endswith(f'qsub -sync y -cwd -V -pe smp {opts["threads"]} -l h_vmem={opts["h_vmem"]}G,h_stack=32M -q {opts["queue"]} -o {target}.log.out -e {target}.log.err -N {cmds[0].split(" ")[0]}')
+        assert rule.recipe[2].endswith(f'qsub -sync y -cwd -V -pe smp {opts["threads"]} -l h_vmem={opts["h_vmem"]}G,h_stack=32M -q {opts["queue"]} -o {target}.log.out -e {target}.log.err -N {cmds[0].split(" ")[0]}')

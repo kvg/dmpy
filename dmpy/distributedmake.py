@@ -71,7 +71,7 @@ class DMBuilder(object):
             if self.scheduler == SchedulingEngine.sge and len(rule.clusteropts) > 0:
                 cmd_prefix = ['echo \"(']
                 cmd_suffix = [')\" |', 'qsub', '-sync y', '-cwd', '-V',
-                              f'pe smp {rule.clusteropts["threads"]}',
+                              f'-pe smp {rule.clusteropts["threads"]}',
                               f'-l h_vmem={rule.clusteropts["h_vmem"]}G,h_stack=32M',
                               f'-q {rule.clusteropts["queue"]}',
                               f'-o {rule.target}.log.out',
