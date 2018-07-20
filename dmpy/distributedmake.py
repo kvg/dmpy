@@ -76,7 +76,7 @@ class DMBuilder(object):
                               f'-q {rule.clusteropts["queue"]}',
                               f'-o {rule.target}.log.out',
                               f'-e {rule.target}.log.err',
-                              f'-N {rule.name}'
+                              f'-N {os.path.basename(rule.name)}'
                               ]
 
                 cmd_prefix = ' '.join(cmd_prefix)
