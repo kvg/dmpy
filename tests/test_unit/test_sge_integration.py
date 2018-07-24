@@ -19,10 +19,10 @@ class TestDmpySlurmIntegration(object):
         rule = rules[0]
         assert len(rule.recipe) == 3
         assert rule.recipe[0].startswith('@test ')
-        assert rule.recipe[1].startswith('echo') >= 0
-        assert rule.recipe[1].find('qsub') >= 0
-        assert rule.recipe[2].startswith('echo') >= 0
-        assert rule.recipe[2].find('qsub') >= 0
+        assert rule.recipe[1].startswith('echo')
+        assert 'qsub' in rule.recipe[1]
+        assert rule.recipe[2].startswith('echo')
+        assert 'qsub' in rule.recipe[2]
 
     def test_work_commands_with_qsub_args(self):
         # given
@@ -45,5 +45,7 @@ class TestDmpySlurmIntegration(object):
         rule = rules[0]
         assert len(rule.recipe) == 3
         assert rule.recipe[0].startswith('@test ')
-        assert rule.recipe[1].endswith(f'qsub -sync y -cwd -V -pe smp {opts["threads"]} -l h_vmem={opts["h_vmem"]}G,h_stack=32M -q {opts["queue"]} -o {target}.log.out -e {target}.log.err -N {cmds[0].split(" ")[0]}')
-        assert rule.recipe[2].endswith(f'qsub -sync y -cwd -V -pe smp {opts["threads"]} -l h_vmem={opts["h_vmem"]}G,h_stack=32M -q {opts["queue"]} -o {target}.log.out -e {target}.log.err -N {cmds[0].split(" ")[0]}')
+
+        for arg in ['-sync y', '-cwd', '-V', f'-pe smp {opts["threads"]}', f'-l h_vmem={opts["h_vmem"]}G,h_stack=32M', f'-q {opts["queue"]}', f'-o {target}.log.out', f'-e {target}.log.err', f'-N {cmds[0].split(" ")[0]}']:
+            assert arg in rule.recipe[1]
+            assert arg in rule.recipe[2]
