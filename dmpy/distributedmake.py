@@ -69,7 +69,7 @@ class DMBuilder(object):
                 cmd_prefix = ' '.join(cmd_prefix)
                 rule.recipe = [cmd_prefix + ' ' + shlex.quote(cmd) for cmd in rule.recipe]
             if self.scheduler == SchedulingEngine.sge and len(rule.clusteropts) > 0:
-                cmd_prefix = ['echo \"(']
+                cmd_prefix = ['echo \"set -o pipefail && (']
                 cmd_suffix = [')\" |', 'qsub', '-sync y', '-cwd', '-V',
                               f'-pe smp {rule.clusteropts["threads"]}',
                               f'-l h_vmem={rule.clusteropts["h_vmem"]}G,h_stack=32M',
