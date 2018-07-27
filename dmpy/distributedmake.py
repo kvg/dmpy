@@ -71,37 +71,37 @@ class DMBuilder(object):
                 rule.recipe = [cmd_prefix + ' ' + shlex.quote(cmd) for cmd in rule.recipe]
             if self.scheduler == SchedulingEngine.sge and len(rule.clusteropts) > 0:
                 #tmp = mkstemp(suffix=".sh", prefix=os.path.basename(rule.name), text=True)
-                qsub_prefix = ['qsub', '-sync y', '-cwd', '-V',
-                               f'-pe smp {rule.clusteropts["threads"]}',
-                               f'-l h_vmem={rule.clusteropts["h_vmem"]}G,h_stack=32M',
-                               f'-q {rule.clusteropts["queue"]}',
-                               f'-o {rule.target}.log.out',
-                               f'-e {rule.target}.log.err',
-                               f'-N {os.path.basename(rule.name)}',
-                               f'-b y'
-                               ]
+                # qsub_prefix = ['qsub', '-sync y', '-cwd', '-V',
+                #                f'-pe smp {rule.clusteropts["threads"]}',
+                #                f'-l h_vmem={rule.clusteropts["h_vmem"]}G,h_stack=32M',
+                #                f'-q {rule.clusteropts["queue"]}',
+                #                f'-o {rule.target}.log.out',
+                #                f'-e {rule.target}.log.err',
+                #                f'-N {os.path.basename(rule.name)}',
+                #                f'-b y'
+                #                ]
+                #
+                # with tempfile.NamedTemporaryFile() as temp:
+                #     temp.write("#!/bin/bash\n")
+                #     temp.write("set -o pipefail\n")
+                #     for cmd in rule.recipe:
+                #         temp.write(cmd + "\n")
+                #
+                # rule.recipe = [qsub_prefix + ' ' + temp]
 
-                with tempfile.NamedTemporaryFile() as temp:
-                    temp.write("#!/bin/bash\n")
-                    temp.write("set -o pipefail\n")
-                    for cmd in rule.recipe:
-                        temp.write(cmd + "\n")
+               cmd_prefix = ['echo \"(']
+               cmd_suffix = [')\" |', 'qsub', '-sync y', '-cwd', '-V',
+                             f'-pe smp {rule.clusteropts["threads"]}',
+                             f'-l h_vmem={rule.clusteropts["h_vmem"]}G,h_stack=32M',
+                             f'-q {rule.clusteropts["queue"]}',
+                             f'-o {rule.target}.log.out',
+                             f'-e {rule.target}.log.err',
+                             f'-N {os.path.basename(rule.name)}'
+                             ]
 
-                rule.recipe = [qsub_prefix + ' ' + temp]
-
-#                cmd_prefix = ['echo \"set -o pipefail && (']
-#                cmd_suffix = [')\" |', 'qsub', '-sync y', '-cwd', '-V',
-#                              f'-pe smp {rule.clusteropts["threads"]}',
-#                              f'-l h_vmem={rule.clusteropts["h_vmem"]}G,h_stack=32M',
-#                              f'-q {rule.clusteropts["queue"]}',
-#                              f'-o {rule.target}.log.out',
-#                              f'-e {rule.target}.log.err',
-#                              f'-N {os.path.basename(rule.name)}'
-#                              ]
-#
-#                cmd_prefix = ' '.join(cmd_prefix)
-#                cmd_suffix = ' '.join(cmd_suffix)
-#                rule.recipe = [cmd_prefix + ' ' + cmd + ' ' + cmd_suffix for cmd in rule.recipe]
+               cmd_prefix = ' '.join(cmd_prefix)
+               cmd_suffix = ' '.join(cmd_suffix)
+               rule.recipe = [cmd_prefix + ' ' + cmd + ' ' + cmd_suffix for cmd in rule.recipe]
 
             rule.recipe.insert(0, "@test -d {0} || mkdir -p {0}".format(dirname))
             for cmd in rule.recipe:
