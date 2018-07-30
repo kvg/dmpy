@@ -6,6 +6,18 @@ from dmpy.objects.dm_rule import DMRule
 RULE_TARGET_DEP_REGEX = re.compile(':')
 ASSIGNMENT_REGEX = re.compile('\s*:=\s*')
 
+def extract_variables_from_makefile(lines):
+    variables = {}
+
+    for line in lines:
+        if not line.startswith('\t') and '=' in line:
+            key, value = line.split('=')
+            key = key.strip()
+            value = value.strip()
+
+            variables[key] = value
+
+    return variables
 
 def extract_rules_from_makefile(lines):
     rules = []
