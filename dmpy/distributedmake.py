@@ -43,7 +43,7 @@ def get_dm_arg_parser(description="dmpy powered analysis"):
 
 @attr.s(slots=True)
 class DMBuilder(object):
-    shell = attr.ib(default="/bin/bash")
+    shell = attr.ib(default="/bin/bash -o pipefail")
     rules = attr.ib(attr.Factory(list))
     scheduler = attr.ib(default=SchedulingEngine.none)
     scheduler_args = attr.ib(default=attr.Factory(list))
