@@ -70,19 +70,24 @@ class DMBuilder(object):
                 cmd_prefix = ' '.join(cmd_prefix)
                 rule.recipe = [cmd_prefix + ' ' + shlex.quote(cmd) for cmd in rule.recipe]
             if self.scheduler == SchedulingEngine.sge and len(rule.clusteropts) > 0:
-               cmd_prefix = ['echo \"(']
-               cmd_suffix = [')\" |', 'qsub', '-sync y', '-cwd', '-V',
-                             f'-pe smp {rule.clusteropts["threads"]}',
-                             f'-l h_vmem={rule.clusteropts["h_vmem"]}G,h_stack=32M',
-                             f'-q {rule.clusteropts["queue"]}',
-                             f'-o {rule.target}.log.out',
-                             f'-e {rule.target}.log.err',
-                             f'-N {os.path.basename(rule.name)}'
-                             ]
+                shfile = f'{rule.target}.sh'
 
-               cmd_prefix = ' '.join(cmd_prefix)
-               cmd_suffix = ' '.join(cmd_suffix)
-               rule.recipe = [cmd_prefix + ' ' + cmd + ' ' + cmd_suffix for cmd in rule.recipe]
+                cmd_prefix = ['echo -e "#!/bin/bash -o pipefail\\n\\n']
+                cmd_suffix = [f'" > {shfile};',
+                              'qsub', '-sync y', '-cwd', '-V', '-b y',
+                              f'-pe smp {rule.clusteropts["threads"]}',
+                              f'-l h_vmem={rule.clusteropts["h_vmem"]}G,h_stack=32M',
+                              f'-q {rule.clusteropts["queue"]}',
+                              f'-o {rule.target}.log.out',
+                              f'-e {rule.target}.log.err',
+                              f'-N {os.path.basename(rule.name)}',
+                              shfile
+                              ]
+
+                cmd_prefix = ' '.join(cmd_prefix)
+                cmd_suffix = ' '.join(cmd_suffix)
+
+                rule.recipe = [cmd_prefix + ' ' + cmd + ' ' + cmd_suffix for cmd in rule.recipe]
 
             rule.recipe.insert(0, "@test -d {0} || mkdir -p {0}".format(dirname))
             for cmd in rule.recipe:

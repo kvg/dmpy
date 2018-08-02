@@ -16,7 +16,9 @@ class TestDmpySlurmIntegration(object):
 
         # then
         rules = extract_rules_from_makefile(writer.getvalue().split("\n"))
+
         rule = rules[0]
+
         assert len(rule.recipe) == 3
         assert rule.recipe[0].startswith('@test ')
         assert rule.recipe[1].startswith('echo')
