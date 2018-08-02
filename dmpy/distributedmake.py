@@ -72,8 +72,8 @@ class DMBuilder(object):
             if self.scheduler == SchedulingEngine.sge and len(rule.clusteropts) > 0:
                 shfile = f'{rule.target}.sh'
 
-                cmd_prefix = ['echo -e "#!/bin/bash -o pipefail\\n\\n']
-                cmd_suffix = [f'" > {shfile};',
+                cmd_prefix = ['echo -e \'#!/bin/bash -o pipefail\\n\\n']
+                cmd_suffix = [f'\' > {shfile};',
                               'qsub', '-sync y', '-cwd', '-V', '-b y',
                               f'-pe smp {rule.clusteropts["threads"]}',
                               f'-l h_vmem={rule.clusteropts["h_vmem"]}G,h_stack=32M',
