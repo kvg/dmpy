@@ -74,7 +74,7 @@ class DMBuilder(object):
 
                 cmd_prefix = ['echo -e \'#!/bin/bash\\nset -xo pipefail\\n']
                 cmd_suffix = [f'\' > {shfile};',
-                              'qsub', '-sync y', '-cwd', '-V', '-b y',
+                              'qsub', '-sync y', '-cwd', '-V',
                               f'-pe smp {rule.clusteropts["threads"]}',
                               f'-l h_vmem={rule.clusteropts["h_vmem"]}G,h_stack=32M',
                               f'-q {rule.clusteropts["queue"]}',
