@@ -72,7 +72,7 @@ class DMBuilder(object):
             if self.scheduler == SchedulingEngine.sge and len(rule.clusteropts) > 0:
                 shfile = f'{rule.target}.sh'
 
-                cmd_prefix = ['echo -e \'#!/bin/bash -o pipefail\\n\\n']
+                cmd_prefix = ['echo -e \'#!/bin/bash -o pipefail\\n']
                 cmd_suffix = [f'\' > {shfile};',
                               'qsub', '-sync y', '-cwd', '-V', '-b y',
                               f'-pe smp {rule.clusteropts["threads"]}',
@@ -87,7 +87,7 @@ class DMBuilder(object):
                 cmd_prefix = ' '.join(cmd_prefix)
                 cmd_suffix = ' '.join(cmd_suffix)
 
-                rule.recipe = [cmd_prefix + ' ' + cmd + ' ' + cmd_suffix for cmd in rule.recipe]
+                rule.recipe = [cmd_prefix + '\\n' + cmd + '\\n' + cmd_suffix for cmd in rule.recipe]
 
             rule.recipe.insert(0, "@test -d {0} || mkdir -p {0}".format(dirname))
             for cmd in rule.recipe:
