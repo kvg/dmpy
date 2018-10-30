@@ -49,16 +49,25 @@ class DMBuilder(object):
     scheduler_args = attr.ib(default=attr.Factory(list))
     _targets = attr.ib(attr.Factory(set))
 
-    def add(self, target, deps, cmds, opts=None):
+    def add(self, target, deps, cmds, opts=None, intermediate=False):
         if target is None:
             raise ValueError("target may not be None type")
         if target in self._targets:
             raise Exception("Tried to add target twice: {}".format(target))
         self._targets.add(target)
-        self.rules.append(DMRule(target, deps, cmds, opts))
+        self.rules.append(DMRule(target, deps, cmds, opts, intermediate))
 
     def write_to_filehandle(self, fh):
         fh.write("SHELL = {}\n".format(self.shell))
+
+        intermediates = []
+        for rule in self.rules:
+            if rule.intermediate:
+                intermediates.append(rule.target)
+
+        if len(intermediates) > 0:
+            fh.write(".INTERMEDIATE: {}\n".format(" ".join(intermediates)))
+
         for rule in self.rules:
             dirname = os.path.abspath(os.path.dirname(rule.target))
 

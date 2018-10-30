@@ -5,6 +5,10 @@ def stringify(val):
     return str(val)
 
 
+def boolify(val):
+    return bool(val)
+
+
 def convert_to_list(val):
     if val is None:
         return []
@@ -57,6 +61,7 @@ class DMRule(object):
     deps = attr.ib(attr.Factory(list), convert=convert_to_list)
     recipe = attr.ib(attr.Factory(list), convert=convert_to_list)
     clusteropts = attr.ib(attr.Factory(dict), convert=convert_to_dict)
+    intermediate = attr.ib(attr.Factory(bool), convert=boolify)
 
     @target.validator
     def not_none(self, attribute, value):

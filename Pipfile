@@ -6,6 +6,7 @@ verify_ssl = true
 pytest = "*"
 pytest-pep8 = "*"
 twine = "*"
+requests = ">=2.20.0"
 
 [packages]
 attrs = "*"
